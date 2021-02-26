@@ -4,6 +4,8 @@
 #include <stdio.h>
 #include <string.h>
 
+#include "data_structs.h"
+
 #define BOARD_SIZE 64
 
 
@@ -11,6 +13,7 @@
     Each piece is represented by 4 bits the first one represents the color
     and the other 3 the piece types
 */
+
 #define KING 0b001
 #define QUEEN 0b010
 #define BISHOP 0b011
@@ -28,14 +31,22 @@ typedef struct BOARD_DATA{
     unsigned char en_passant;
     int halfmove;
     int fullmove;
-}board_data;
+}BoardData;
+
+typedef struct MOVE{
+    unsigned char from;
+    unsigned char to;
+}Move;
 
 extern unsigned char *board;
-extern board_data bd;
+extern BoardData bd;
 
 int loadBoardFromString(char *string);
 int loadPiece(int x, int y, unsigned char piece, unsigned char color);
 
 void printBoard();
 int play(unsigned char from, unsigned char to);
+
+
+void printMoves(List l);
 

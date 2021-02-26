@@ -1,10 +1,24 @@
 #include "board.h"
 
 unsigned char *board; // 'Universal' board
-board_data bd;  // 'Universal' struct that holds data about the game state
+BoardData bd;  // 'Universal' struct that holds data about the game state
 
 const char piece_vals_white[7] = {'k', 'q', 'b', 'r', 'n', 'p'};
 const char piece_vals_black[7] = {'K', 'Q', 'B', 'R', 'N', 'P'};
+
+
+void printMoves(List l){
+    List cpy = l;
+    if(l == NULL){
+        printf("Empty move list\n");
+    }
+    while(!isListEmpty(cpy)){
+        Move m = *(Move*)(cpy->data);
+        printf("From: %d | To: %d\n", m.from, m.to);
+        cpy = cpy->next;
+    }
+
+}
 
 //Auxiliary funtion
 int findByIndex(const char *arr, char c){
@@ -176,17 +190,48 @@ void printBoard(){
 //the piece you want to move is valid.
 
 //TODO make a rule system for each piece
-int play(unsigned char from, unsigned char to){
-    unsigned char from_column = from >> 4;
-    unsigned char from_line = from & 0b00001111;
 
-    unsigned char from_piece = board[from_line * 8 + from_line];
-
-    if(from_piece == RESERVED)
-        return 0;
+List pawn_moves(int from_col, int from_line){
+    List final = createList();
     
-    if(from_piece >> 3 != bd.current_player)
-        return 0;
+    if(board[(from_line + 1) * 8 + from_col] == RESERVED){
+        Move *data = malloc(sizeof(Move));
+        data->from = (unsigned char)from_line << 4 | (unsigned char)from_col;
+        data->to = (unsigned char)(from_line + 1) << 4 | (unsigned char)from_col;
+        final = appendHead(final, data);
+    }
 
-    return 1;
+    return final;
+}
+
+int play(unsigned char from, unsigned char to){
+    unsigned char from_line = from >> 4;
+    unsigned char from_column = from & 0b00001111;
+
+    Move m = {.from = from, .to = to};
+
+    unsigned char from_piece = board[from_line * 8 + from_column];
+
+    if(from_piece == RESERVED){
+        return 0;
+    }
+    
+    if(from_piece >> 3 != bd.current_player){
+        return 0;
+    }
+    switch (from_piece & 0b111)
+    {
+    case PAWN: ;
+        List possible_moves = pawn_moves(from & 0b00001111, from >> 4);
+
+        if(isDataIn(possible_moves, &m, sizeof(Move)))
+            return 1;
+
+        return 0;
+        break;
+    
+    default: 
+        break;
+    }
+    return 0;
 }

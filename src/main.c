@@ -15,8 +15,11 @@ int main(){
     }
     
     printBoard();
-    if(!play(0, 0))
-        printf("Invalid Move\n");
+    int r = play(0b00010000, 0b00100000);
+
+    if(r == 0){
+        printf("Failed to move piece\n");
+    }
 
     return 0;
 }
